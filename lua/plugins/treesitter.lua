@@ -25,4 +25,18 @@ return {
       },
     },
   },
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufReadPre" },
+    dependencies = { "nvim-treesitter" },
+    opts = {
+      max_lines = 4,
+    },
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects", -- required by nvim-surround
+    event = { "BufReadPre" },
+    branch = "main",
+    dependencies = { "nvim-treesitter" },
+  },
 }
