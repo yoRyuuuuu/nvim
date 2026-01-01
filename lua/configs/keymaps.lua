@@ -1,0 +1,18 @@
+-- Copy relative file path for AI
+vim.keymap.set("n", "<leader>Y", function()
+  local file_path = vim.fn.expand("%:.")
+  vim.fn.setreg("+", file_path)
+  vim.notify("Copied relative file path: " .. file_path, vim.log.levels.INFO)
+end, { desc = "Copy relative file path for AI" })
+
+-- Copy context string for AI (visual mode)
+vim.keymap.set("v", "<leader>y", function()
+  vim.cmd("normal! y")
+  local file_path = vim.fn.expand("%:.")
+  local start_line = vim.fn.line("'[")
+  local end_line = vim.fn.line("']")
+  local context_string = string.format("@%s#L%s-%s", file_path, start_line, end_line)
+  vim.fn.setreg('"', "")
+  vim.fn.setreg("+", context_string)
+  vim.notify("Copied to clipboard: " .. context_string, vim.log.levels.INFO)
+end, { desc = "Copy context string for AI" })
