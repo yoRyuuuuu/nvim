@@ -1,46 +1,71 @@
 return {
-  "folke/snacks.nvim",
-  priority = 1000,
-  lazy = false,
-  opts = {
-    animate = { enabled = true },
-    bigfile = { enabled = true },
-    bufdelete = { enabled = true },
-    dashboard = { enabled = true },
-    debug = { enabled = true },
-    dim = { enabled = true },
-    explorer = { enabled = true },
-    gh = { enabled = true },
-    git = { enabled = true },
-    gitbrowse = { enabled = true },
-    image = { enabled = true },
-    indent = { enabled = true },
-    input = { enabled = true },
-    keymap = { enabled = true },
-    layout = { enabled = true },
-    lazygit = { enabled = true },
-    notifier = { enabled = true },
-    notify = { enabled = true },
-    picker = { enabled = true },
-    profiler = { enabled = true },
-    quickfile = { enabled = true },
-    rename = { enabled = true },
-    scope = { enabled = true },
-    scratch = { enabled = true },
-    scroll = { enabled = true },
-    statuscolumn = { enabled = true },
-    terminal = { enabled = true },
-    toggle = { enabled = true },
-    util = { enabled = true },
-    win = { enabled = true },
-    words = { enabled = true },
-    zen = { enabled = true },
+  {
+
+    "folke/snacks.nvim",
+    priority = 1000,
+    lazy = false,
+    ---@type snacks.Config
+    opts = {
+      dashboard = { enabled = true },
+      explorer = { enabled = true },
+      git = { enabled = true },
+      lazygit = {
+        enabled = true,
+        win = {
+          backdrop = false,
+          wo = {
+            winhighlight = "Normal:Normal,NormalFloat:Normal,FloatBorder:Normal",
+          },
+        },
+      },
+      picker = { enabled = true },
+      zen = { enabled = true },
+    },
+    keys = {
+      {
+        "<leader>e",
+        function()
+          Snacks.explorer()
+        end,
+        desc = "Snacks Explorer",
+      },
+      {
+        "<leader>gg",
+        function()
+          Snacks.lazygit()
+        end,
+        desc = "Snacks LazyGit",
+      },
+    },
+    config = function(_, opts)
+      require("snacks").setup(opts)
+
+      local function smart_files()
+        local picker = require("snacks").picker
+        local root = require("snacks.git").get_root()
+        local sources = require("snacks.picker.config.sources")
+
+        local files = root == nil and sources.files
+          or vim.tbl_deep_extend("force", sources.git_files, {
+            untracked = true,
+            cwd = vim.uv.cwd(),
+          })
+
+        picker({
+          multi = { "buffers", "recent", files },
+          format = "file",
+          matcher = { frecency = true, sort_empty = true },
+          filter = { cwd = true },
+          transform = "unique_file",
+        })
+      end
+
+      vim.keymap.set("n", "<leader>ff", smart_files, { desc = "Smart Files" })
+    end,
   },
-  keys = {
-    { "<leader>e", function() Snacks.explorer() end, desc = "Snacks Explorer", },
-    { "<leader>gg", function() Snacks.lazygit() end, desc = "Snacks LazyGit", },
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {},
   },
-  config = function(_, opts)
-    require("snacks").setup(opts)
-  end,
 }
