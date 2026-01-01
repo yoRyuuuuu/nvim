@@ -1,3 +1,23 @@
+local function smart_files()
+  local picker = require("snacks").picker
+  local root = require("snacks.git").get_root()
+  local sources = require("snacks.picker.config.sources")
+
+  local files = root == nil and sources.files
+    or vim.tbl_deep_extend("force", sources.git_files, {
+      untracked = true,
+      cwd = vim.uv.cwd(),
+    })
+
+  picker({
+    multi = { "buffers", "recent", files },
+    format = "file",
+    matcher = { frecency = true, sort_empty = true },
+    filter = { cwd = true },
+    transform = "unique_file",
+  })
+end
+
 return {
   {
 
@@ -18,6 +38,12 @@ return {
           },
         },
       },
+      indent = { enabled = true },
+      input = { enabled = true },
+      notifier = {
+        enabled = true,
+        timeout = 3000,
+      },
       picker = { enabled = true },
       zen = { enabled = true },
     },
@@ -36,36 +62,28 @@ return {
         end,
         desc = "Snacks LazyGit",
       },
+      {
+        "<leader>ff",
+        smart_files,
+        desc = "Search Files",
+      },
     },
-    config = function(_, opts)
-      require("snacks").setup(opts)
-
-      local function smart_files()
-        local picker = require("snacks").picker
-        local root = require("snacks.git").get_root()
-        local sources = require("snacks.picker.config.sources")
-
-        local files = root == nil and sources.files
-          or vim.tbl_deep_extend("force", sources.git_files, {
-            untracked = true,
-            cwd = vim.uv.cwd(),
-          })
-
-        picker({
-          multi = { "buffers", "recent", files },
-          format = "file",
-          matcher = { frecency = true, sort_empty = true },
-          filter = { cwd = true },
-          transform = "unique_file",
-        })
-      end
-
-      vim.keymap.set("n", "<leader>ff", smart_files, { desc = "Smart Files" })
-    end,
   },
   {
     "lewis6991/gitsigns.nvim",
     event = { "BufReadPre", "BufNewFile" },
     opts = {},
+  },
+  {
+    "nvim-tree/nvim-web-devicons",
+    lazy = false,
+    opts = {},
+  },
+  {
+    "folke/trouble.nvim",
+    -- opts will be merged with the parent spec
+    opts = {
+      use_diagnostic_signs = true,
+    },
   },
 }
