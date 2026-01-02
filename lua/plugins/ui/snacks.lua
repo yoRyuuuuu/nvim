@@ -108,6 +108,8 @@ return {
       { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing", },
       { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols", },
       { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols", },
+      { "<leader>lr", function() vim.lsp.buf.rename() end, desc = "Rename Symbol", },
+      { "<leader>lR", function() Snacks.rename.rename_file() end, desc = "Rename File", },
     },
     -- stylua: ignore end
   },
