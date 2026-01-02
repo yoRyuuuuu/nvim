@@ -1,9 +1,7 @@
 return {
   {
-    {
-      "mason-org/mason.nvim",
-      opts = {},
-    },
+    "mason-org/mason.nvim",
+    opts = {},
   },
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",

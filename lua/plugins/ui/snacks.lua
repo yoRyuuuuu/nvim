@@ -20,7 +20,6 @@ end
 
 return {
   {
-
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
@@ -111,37 +110,5 @@ return {
       { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols", },
     },
     -- stylua: ignore end
-  },
-  {
-    "folke/persistence.nvim",
-    event = "BufReadPre",
-    keys = {
-    -- stylua: ignore start
-      { "<leader>qs", function() require("persistence").load() end, desc = "Restore Session" },
-      { "<leader>qS", function() require("persistence").select() end, desc = "Select Session" },
-      { "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Restore Last Session" },
-      { "<leader>qd", function() require("persistence").stop() end, desc = "Don't Save Current Session" },
-    },
-    -- stylua: ignore end
-    opts = {
-      options = vim.opt.sessionoptions:get(),
-    },
-  },
-  {
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {},
-  },
-  {
-    "nvim-tree/nvim-web-devicons",
-    lazy = false,
-    opts = {},
-  },
-  {
-    "folke/trouble.nvim",
-    -- opts will be merged with the parent spec
-    opts = {
-      use_diagnostic_signs = true,
-    },
   },
 }
