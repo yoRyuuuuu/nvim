@@ -1,42 +1,33 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "bash",
-        "html",
-        "javascript",
-        "json",
-        "lua",
-        "markdown",
-        "markdown_inline",
-        "python",
-        "query",
-        "regex",
-        "tsx",
-        "typescript",
-        "vim",
-        "yaml",
-        "go",
-      },
-      highlight = {
-        enable = true,
-        additional_vim_regex_highlighting = true,
-      },
-    },
+    build = ":TSUpdate",
+    branch = "main",
+    lazy = false,
+    config = function()
+      -- In the rewritten main branch, highlighting is provided by Neovim and must be enabled explicitly.
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function(args)
+          if vim.bo[args.buf].buftype ~= "" then
+            return
+          end
+          pcall(vim.treesitter.start, args.buf)
+        end,
+      })
+    end,
   },
   {
     "nvim-treesitter/nvim-treesitter-context",
     event = { "BufReadPre" },
-    dependencies = { "nvim-treesitter" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
     opts = {
       max_lines = 4,
     },
   },
   {
-    "nvim-treesitter/nvim-treesitter-textobjects", -- required by nvim-surround
+    "nvim-treesitter/nvim-treesitter-textobjects",
     event = { "BufReadPre" },
     branch = "main",
-    dependencies = { "nvim-treesitter" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
 }
