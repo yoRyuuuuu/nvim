@@ -12,6 +12,7 @@ return {
         spacing = 4,
       },
       spec = {
+        { "<leader>a", group = "AI" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
         { "<leader>l", group = "LSP" },

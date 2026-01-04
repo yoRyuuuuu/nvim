@@ -43,7 +43,24 @@ return {
         enabled = true,
         timeout = 3000,
       },
-      picker = { enabled = true },
+      picker = {
+        enabled = true,
+        actions = {
+          sidekick_send = function(...)
+            local ok, sidekick = pcall(require, "sidekick.cli.picker.snacks")
+            if ok and type(sidekick.send) == "function" then
+              return sidekick.send(...)
+            end
+          end,
+        },
+        win = {
+          input = {
+            keys = {
+              ["<a-a>"] = { "sidekick_send", mode = { "n", "i" } },
+            },
+          },
+        },
+      },
       zen = { enabled = true },
     },
     -- stylua: ignore start
