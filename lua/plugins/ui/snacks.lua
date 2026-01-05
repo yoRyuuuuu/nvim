@@ -127,6 +127,8 @@ return {
       { "<leader>sp", function() Snacks.picker.lazy() end, desc = "Search for Plugin Spec", },
       { "<leader>sq", function() Snacks.picker.qflist() end, desc = "Quickfix List", },
       { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume", },
+      { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "Todo" },
+      { "<leader>sT", function () Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end, desc = "Todo/Fix/Fixme" },
       { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo History", },
       { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes", },
       -- LSP
