@@ -16,12 +16,19 @@ return {
       require("mason-lspconfig").setup({
         ensure_installed = {
           "gopls",
+          "golangci_lint_ls",
           "terraformls",
           "lua_ls",
         },
       })
 
       vim.lsp.config("gopls", { capabilities = capabilities })
+      vim.lsp.config("golangci_lint_ls", {
+        capabilities = capabilities,
+        init_options = {
+          command = { "golangci-lint", "run", "--output.json.path=stdout", "--show-stats=false" },
+        },
+      })
       vim.lsp.config("terraformls", { capabilities = capabilities })
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
@@ -34,7 +41,7 @@ return {
         },
       })
 
-      vim.lsp.enable({ "gopls", "terraformls", "lua_ls" })
+      vim.lsp.enable({ "gopls", "golangci_lint_ls", "terraformls", "lua_ls" })
 
       vim.diagnostic.config({
         virtual_text = true,
