@@ -90,6 +90,7 @@ return {
       { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers", },
       { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File", },
       { "<leader>ff", smart_files, desc = "Search Files", },
+      { "<leader>fF", function() Snacks.picker.files({ hidden = true, ignored = true, follow = true }) end, desc = "Find All Files", },
       { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files", },
       { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects", },
       { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent", },
