@@ -28,6 +28,7 @@ return {
       dashboard = { enabled = true },
       explorer = { enabled = true },
       git = { enabled = true },
+      gitbrowse = { enabled = true },
       lazygit = {
         enabled = true,
         win = {
@@ -61,89 +62,66 @@ return {
           },
         },
       },
+      rename = { enabled = true },
       zen = { enabled = true },
     },
     -- stylua: ignore start
     keys = {
-      -- Top Pickers & Explorer
-      { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files", },
-      { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers", },
-      { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep", },
-      {
-        "/",
-        function()
-          Snacks.input({ prompt = "Search: " }, function(value)
-            if not value or value == "" then
-              return
-            end
-            vim.fn.setreg("/", value)
-            vim.o.hlsearch = true
-            vim.fn.search(value)
-          end)
-        end,
-        desc = "Search (Snacks input)",
-      },
-      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History", },
-      { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History", },
-      { "<leader>e", function() Snacks.explorer() end, desc = "File Explorer", },
-      -- find
+      -- Explorer (AstroNvim: <leader>e)
+      { "<leader>e", function() Snacks.explorer() end, desc = "Explorer", },
+      -- Picker mappings (AstroNvim-style)
+      { "<leader>f<CR>", function() Snacks.picker.resume() end, desc = "Resume", },
+      { "<leader>f'", function() Snacks.picker.marks() end, desc = "Marks", },
+      { "<leader>fa", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Config Files", },
       { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers", },
-      { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File", },
-      { "<leader>ff", smart_files, desc = "Search Files", },
-      { "<leader>fF", function() Snacks.picker.files({ hidden = true, follow = true }) end, desc = "Find All Files", },
-      { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files", },
+      { "<leader>fc", function() Snacks.picker.grep_word() end, desc = "Word at Cursor", mode = { "n", "x" }, },
+      { "<leader>fC", function() Snacks.picker.commands() end, desc = "Commands", },
+      { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files", },
+      { "<leader>fF", function() Snacks.picker.files({ hidden = true, follow = true }) end, desc = "Find Files (hidden)", },
+      { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Git Files", },
+      { "<leader>fh", function() Snacks.picker.help() end, desc = "Help Tags", },
+      { "<leader>fk", function() Snacks.picker.keymaps() end, desc = "Keymaps", },
+      { "<leader>fl", function() Snacks.picker.lines() end, desc = "Lines", },
+      { "<leader>fm", function() Snacks.picker.man() end, desc = "Man Pages", },
+      { "<leader>fn", function() Snacks.picker.notifications() end, desc = "Notifications", },
+      { "<leader>fo", function() Snacks.picker.recent() end, desc = "Old Files", },
+      { "<leader>fO", function() Snacks.picker.recent({ filter = { cwd = true } }) end, desc = "Old Files (cwd)", },
       { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects", },
-      { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent", },
-      -- git
+      { '<leader>fr', function() Snacks.picker.registers() end, desc = "Registers", },
+      { "<leader>fs", smart_files, desc = "Smart (buffers,recent,files)", },
+      { "<leader>ft", function() Snacks.picker.colorschemes() end, desc = "Colorschemes", },
+      { "<leader>fu", function() Snacks.picker.undo() end, desc = "Undo History", },
+      { "<leader>fw", function() Snacks.picker.grep() end, desc = "Live Grep", },
+      { "<leader>fW", function() Snacks.picker.grep({ hidden = true, follow = true }) end, desc = "Live Grep (hidden)", },
+      -- Git mappings (AstroNvim-style)
       { "<leader>gb", function() Snacks.picker.git_branches() end, desc = "Git Branches", },
-      { "<leader>gl", function() Snacks.picker.git_log() end, desc = "Git Log", },
-      { "<leader>gL", function() Snacks.picker.git_log_line() end, desc = "Git Log Line", },
-      { "<leader>gs", function() Snacks.picker.git_status() end, desc = "Git Status", },
-      { "<leader>gS", function() Snacks.picker.git_stash() end, desc = "Git Stash", },
-      { "<leader>gd", function() Snacks.picker.git_diff() end, desc = "Git Diff (Hunks)", },
-      { "<leader>gf", function() Snacks.picker.git_log_file() end, desc = "Git Log File", },
-      { "<leader>gg", function() Snacks.lazygit() end, desc = "Snacks LazyGit", },
-      -- Grep
-      { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines", },
-      { "<leader>sB", function() Snacks.picker.grep_buffers() end, desc = "Grep Open Buffers", },
-      { "<leader>sg", function() Snacks.picker.grep() end, desc = "Grep", },
-      { "<leader>sw", function() Snacks.picker.grep_word() end, desc = "Visual selection or word", mode = { "n", "x" }, },
-      -- search
-      { '<leader>s"', function() Snacks.picker.registers() end, desc = "Registers", },
-      { "<leader>s/", function() Snacks.picker.search_history() end, desc = "Search History", },
-      { "<leader>sa", function() Snacks.picker.autocmds() end, desc = "Autocmds", },
-      { "<leader>sb", function() Snacks.picker.lines() end, desc = "Buffer Lines", },
-      { "<leader>sc", function() Snacks.picker.command_history() end, desc = "Command History", },
-      { "<leader>sC", function() Snacks.picker.commands() end, desc = "Commands", },
-      { "<leader>sd", function() Snacks.picker.diagnostics() end, desc = "Diagnostics", },
-      { "<leader>sD", function() Snacks.picker.diagnostics_buffer() end, desc = "Buffer Diagnostics", },
-      { "<leader>sh", function() Snacks.picker.help() end, desc = "Help Pages", },
-      { "<leader>sH", function() Snacks.picker.highlights() end, desc = "Highlights", },
-      { "<leader>si", function() Snacks.picker.icons() end, desc = "Icons", },
-      { "<leader>sj", function() Snacks.picker.jumps() end, desc = "Jumps", },
-      { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "Keymaps", },
-      { "<leader>sl", function() Snacks.picker.loclist() end, desc = "Location List", },
-      { "<leader>sm", function() Snacks.picker.marks() end, desc = "Marks", },
-      { "<leader>sM", function() Snacks.picker.man() end, desc = "Man Pages", },
-      { "<leader>sp", function() Snacks.picker.lazy() end, desc = "Search for Plugin Spec", },
-      { "<leader>sq", function() Snacks.picker.qflist() end, desc = "Quickfix List", },
-      { "<leader>sR", function() Snacks.picker.resume() end, desc = "Resume", },
-      { "<leader>st", function() Snacks.picker.todo_comments() end, desc = "Todo" },
-      { "<leader>sT", function () Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end, desc = "Todo/Fix/Fixme" },
-      { "<leader>su", function() Snacks.picker.undo() end, desc = "Undo History", },
-      { "<leader>uC", function() Snacks.picker.colorschemes() end, desc = "Colorschemes", },
-      -- LSP
+      { "<leader>gc", function() Snacks.picker.git_log() end, desc = "Git Commits (repo)", },
+      { "<leader>gC", function() Snacks.picker.git_log_file() end, desc = "Git Commits (file)", },
+      { "<leader>go", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" }, },
+      { "<leader>gt", function() Snacks.picker.git_status() end, desc = "Git Status", },
+      { "<leader>gT", function() Snacks.picker.git_stash() end, desc = "Git Stash", },
+      -- Terminal mappings (AstroNvim: <leader>tl)
+      { "<leader>gg", function() Snacks.lazygit() end, desc = "LazyGit", },
+      -- LSP picker mappings (Astrojvim-style)
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", },
       { "gD", function() Snacks.picker.lsp_declarations() end, desc = "Goto Declaration", },
-      { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References", },
       { "gI", function() Snacks.picker.lsp_implementations() end, desc = "Goto Implementation", },
-      { "gy", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto T[y]pe Definition", },
+      { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References", },
+      { "gT", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition", },
+      { "<leader>ls", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols", },
+      { "<leader>lG", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols", },
+      { "<leader>lR", function() Snacks.picker.lsp_references() end, desc = "References", },
+      -- General/UI mappings (AstroNvim-style)
+      { "<leader>R", function() Snacks.rename.rename_file() end, desc = "Rename Current File", },
+      { "<leader>uD", function() Snacks.notifier.hide() end, desc = "Dismiss Notifications", },
+      { "<leader>uZ", function() Snacks.zen() end, desc = "Toggle Zen Mode", },
+      -- Extra useful pickers (kept Astro-style)
+      { "<leader>lD", function() Snacks.picker.diagnostics() end, desc = "Diagnostics", },
+      { "<leader>fT", function() Snacks.picker.todo_comments() end, desc = "Todo", },
+      { "<leader>fX", function() Snacks.picker.todo_comments({ keywords = { "TODO", "FIX", "FIXME" } }) end, desc = "Todo/Fix/Fixme", },
+      -- Keep these as-is (useful + non-conflicting)
       { "gai", function() Snacks.picker.lsp_incoming_calls() end, desc = "C[a]lls Incoming", },
       { "gao", function() Snacks.picker.lsp_outgoing_calls() end, desc = "C[a]lls Outgoing", },
-      { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols", },
-      { "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols", },
-      { "<leader>lr", function() vim.lsp.buf.rename() end, desc = "Rename Symbol", },
-      { "<leader>lR", function() Snacks.rename.rename_file() end, desc = "Rename File", },
     },
     -- stylua: ignore end
   },
