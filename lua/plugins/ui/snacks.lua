@@ -110,7 +110,6 @@ return {
       { "gT", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition", },
       { "<leader>ls", function() Snacks.picker.lsp_symbols() end, desc = "LSP Symbols", },
       { "<leader>lG", function() Snacks.picker.lsp_workspace_symbols() end, desc = "LSP Workspace Symbols", },
-      { "<leader>lR", function() Snacks.picker.lsp_references() end, desc = "References", },
       -- General/UI mappings (AstroNvim-style)
       { "<leader>R", function() Snacks.rename.rename_file() end, desc = "Rename Current File", },
       { "<leader>uD", function() Snacks.notifier.hide() end, desc = "Dismiss Notifications", },
