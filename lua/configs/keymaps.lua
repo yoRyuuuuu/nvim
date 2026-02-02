@@ -16,3 +16,6 @@ vim.keymap.set("v", "<leader>y", function()
   vim.fn.setreg("+", context_string)
   vim.notify("Copied to clipboard: " .. context_string, vim.log.levels.INFO)
 end, { desc = "Copy context string for AI" })
+
+-- LSP rename
+vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "LSP Rename" })
