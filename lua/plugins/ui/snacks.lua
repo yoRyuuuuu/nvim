@@ -62,6 +62,7 @@ return {
           },
         },
       },
+      terminal = { enabled = true },
       rename = { enabled = true },
       zen = { enabled = true },
     },
@@ -100,7 +101,8 @@ return {
       { "<leader>go", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" }, },
       { "<leader>gt", function() Snacks.picker.git_status() end, desc = "Git Status", },
       { "<leader>gT", function() Snacks.picker.git_stash() end, desc = "Git Stash", },
-      -- Terminal mappings (AstroNvim: <leader>tl)
+      -- Terminal mappings
+      { "<leader>tf", function() Snacks.terminal(nil, { win = { position = "float" } }) end, desc = "Terminal (Float Toggle)", },
       { "<leader>gg", function() Snacks.lazygit() end, desc = "LazyGit", },
       -- LSP picker mappings (Astrojvim-style)
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", },
