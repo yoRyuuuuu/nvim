@@ -12,6 +12,9 @@ return {
         },
       },
       mux = { backend = "tmux", enabled = false },
+      tools = {
+        codex = { cmd = { "codex" } },
+      },
     },
   },
   keys = {
