@@ -2,25 +2,35 @@ return {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
-    dependencies = {
-      "mason-org/mason.nvim",
-      "mason-org/mason-lspconfig.nvim",
-    },
     config = function()
+      local required_commands = {
+        "gopls",
+        "golangci-lint",
+        "golangci-lint-langserver",
+        "terraform-ls",
+        "lua-language-server",
+        "stylua",
+        "goimports",
+      }
+      local missing_commands = {}
+      for _, cmd in ipairs(required_commands) do
+        if vim.fn.executable(cmd) == 0 then
+          table.insert(missing_commands, cmd)
+        end
+      end
+      if #missing_commands > 0 then
+        vim.schedule(function()
+          vim.notify("Missing external tools: " .. table.concat(missing_commands, ", "), vim.log.levels.WARN, {
+            title = "Tooling Check",
+          })
+        end)
+      end
+
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       local ok, blink = pcall(require, "blink.cmp")
       if ok and type(blink.get_lsp_capabilities) == "function" then
         capabilities = blink.get_lsp_capabilities(capabilities)
       end
-
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          "gopls",
-          "golangci_lint_ls",
-          "terraformls",
-          "lua_ls",
-        },
-      })
 
       vim.lsp.config("gopls", { capabilities = capabilities })
       vim.lsp.config("golangci_lint_ls", {
