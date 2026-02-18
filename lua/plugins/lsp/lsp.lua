@@ -8,6 +8,7 @@ return {
         "golangci-lint",
         "golangci-lint-langserver",
         "terraform-ls",
+        "tsp-server",
         "lua-language-server",
         "stylua",
         "goimports",
@@ -39,7 +40,14 @@ return {
           command = { "golangci-lint", "run", "--output.json.path=stdout", "--show-stats=false" },
         },
       })
-      vim.lsp.config("terraformls", { capabilities = capabilities })
+      vim.lsp.config("terraformls", {
+        capabilities = capabilities,
+        on_attach = function(client)
+          -- terraform-ls semantic tokens can conflict with Tree-sitter highlighting.
+          client.server_capabilities.semanticTokensProvider = nil
+        end,
+      })
+      vim.lsp.config("tsp_server", { capabilities = capabilities })
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = {
@@ -51,7 +59,7 @@ return {
         },
       })
 
-      vim.lsp.enable({ "gopls", "golangci_lint_ls", "terraformls", "lua_ls" })
+      vim.lsp.enable({ "gopls", "golangci_lint_ls", "terraformls", "tsp_server", "lua_ls" })
 
       vim.diagnostic.config({
         virtual_text = true,

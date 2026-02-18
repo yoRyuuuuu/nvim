@@ -17,6 +17,9 @@ vim.keymap.set("v", "<leader>y", function()
   vim.notify("Copied to clipboard: " .. context_string, vim.log.levels.INFO)
 end, { desc = "Copy context string for AI" })
 
+-- Clear search highlight
+vim.keymap.set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+
 -- LSP rename
 vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "LSP Rename" })
 
