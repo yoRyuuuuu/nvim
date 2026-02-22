@@ -3,15 +3,41 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     config = function()
+      local eslint_config_files = {
+        "eslint.config.js",
+        "eslint.config.cjs",
+        "eslint.config.mjs",
+        "eslint.config.ts",
+        ".eslintrc",
+        ".eslintrc.js",
+        ".eslintrc.cjs",
+        ".eslintrc.json",
+        ".eslintrc.yaml",
+        ".eslintrc.yml",
+      }
+
+      local function find_eslint_root(path)
+        local found = vim.fs.find(eslint_config_files, {
+          path = path,
+          upward = true,
+          type = "file",
+        })
+        if #found == 0 then
+          return nil
+        end
+        return vim.fs.dirname(found[1])
+      end
+
       local required_commands = {
         "gopls",
         "golangci-lint",
         "golangci-lint-langserver",
-        "terraform-ls",
-        "tsp-server",
+        "goimports",
+        "typescript-language-server",
+        "vscode-eslint-language-server",
         "lua-language-server",
         "stylua",
-        "goimports",
+        "terraform-ls",
       }
       local missing_commands = {}
       for _, cmd in ipairs(required_commands) do
@@ -47,7 +73,31 @@ return {
           client.server_capabilities.semanticTokensProvider = nil
         end,
       })
-      vim.lsp.config("tsp_server", { capabilities = capabilities })
+      vim.lsp.config("ts_ls", { capabilities = capabilities })
+      vim.lsp.config("eslint", {
+        capabilities = capabilities,
+        root_dir = function(buf, on_dir)
+          local bufname = type(buf) == "number" and vim.api.nvim_buf_get_name(buf) or buf
+          if not bufname or bufname == "" then
+            return nil
+          end
+
+          local dirname = vim.fs.dirname(bufname)
+          if not dirname then
+            return nil
+          end
+
+          local root = find_eslint_root(dirname)
+          if on_dir then
+            if root then
+              on_dir(root)
+            end
+            return nil
+          end
+
+          return root
+        end,
+      })
       vim.lsp.config("lua_ls", {
         capabilities = capabilities,
         settings = {
@@ -59,7 +109,7 @@ return {
         },
       })
 
-      vim.lsp.enable({ "gopls", "golangci_lint_ls", "terraformls", "tsp_server", "lua_ls" })
+      vim.lsp.enable({ "gopls", "golangci_lint_ls", "terraformls", "ts_ls", "eslint", "lua_ls" })
 
       vim.diagnostic.config({
         virtual_text = true,
