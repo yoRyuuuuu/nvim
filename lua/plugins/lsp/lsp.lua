@@ -156,6 +156,11 @@ return {
         end
       end
 
+      local function disable_formatting_capabilities(client)
+        client.server_capabilities.documentFormattingProvider = false
+        client.server_capabilities.documentRangeFormattingProvider = false
+      end
+
       local required_tool_commands = {
         "gopls",
         "golangci-lint",
@@ -210,8 +215,18 @@ return {
         },
         ts_ls = {
           root_dir = build_root_dir(server_root_markers.ts_ls),
+          on_attach = function(client)
+            disable_formatting_capabilities(client)
+          end,
         },
         eslint = {
+          on_attach = function(_, bufnr)
+            -- If eslint attaches, disable ts_ls formatting for this buffer to avoid conflicts.
+            local ts_clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ts_ls" })
+            for _, ts_client in ipairs(ts_clients) do
+              disable_formatting_capabilities(ts_client)
+            end
+          end,
           root_dir = function(buf, on_dir)
             local file_path = resolve_buf_path(buf)
             if not is_lsp_target(buf, file_path) then
@@ -258,6 +273,7 @@ return {
       vim.lsp.enable(server_names)
 
       vim.diagnostic.config({
+        update_in_insert = false,
         virtual_text = true,
         severity_sort = true,
         signs = {
