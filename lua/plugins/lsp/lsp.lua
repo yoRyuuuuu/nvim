@@ -26,19 +26,6 @@ return {
         lua_ls = { ".luarc.json", ".luarc.jsonc", "stylua.toml", ".git" },
       }
 
-      local eslint_config_files = {
-        "eslint.config.js",
-        "eslint.config.cjs",
-        "eslint.config.mjs",
-        "eslint.config.ts",
-        ".eslintrc",
-        ".eslintrc.js",
-        ".eslintrc.cjs",
-        ".eslintrc.json",
-        ".eslintrc.yaml",
-        ".eslintrc.yml",
-      }
-
       local function normalize_path(path)
         if not path or path == "" then
           return nil
@@ -103,18 +90,6 @@ return {
         return true
       end
 
-      local function find_eslint_root(path)
-        local found = vim.fs.find(eslint_config_files, {
-          path = path,
-          upward = true,
-          type = "file",
-        })
-        if #found == 0 then
-          return nil
-        end
-        return vim.fs.dirname(found[1])
-      end
-
       local function find_marked_root(path, markers)
         local file_path = normalize_path(path)
         if not file_path then
@@ -167,7 +142,6 @@ return {
         "golangci-lint-langserver",
         "goimports",
         "typescript-language-server",
-        "vscode-eslint-language-server",
         "lua-language-server",
         "stylua",
         "terraform-ls",
@@ -217,36 +191,6 @@ return {
           root_dir = build_root_dir(server_root_markers.ts_ls),
           on_attach = function(client)
             disable_formatting_capabilities(client)
-          end,
-        },
-        eslint = {
-          on_attach = function(_, bufnr)
-            -- If eslint attaches, disable ts_ls formatting for this buffer to avoid conflicts.
-            local ts_clients = vim.lsp.get_clients({ bufnr = bufnr, name = "ts_ls" })
-            for _, ts_client in ipairs(ts_clients) do
-              disable_formatting_capabilities(ts_client)
-            end
-          end,
-          root_dir = function(buf, on_dir)
-            local file_path = resolve_buf_path(buf)
-            if not is_lsp_target(buf, file_path) then
-              return nil
-            end
-
-            local dirname = vim.fs.dirname(file_path)
-            if not dirname then
-              return nil
-            end
-
-            local root = find_eslint_root(dirname)
-            if on_dir then
-              if root then
-                on_dir(root)
-              end
-              return nil
-            end
-
-            return root
           end,
         },
         lua_ls = {

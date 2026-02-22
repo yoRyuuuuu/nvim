@@ -20,7 +20,11 @@ return {
     {
       "<leader>lf",
       function()
-        require("conform").format({ lsp_fallback = true })
+        require("conform").format({ lsp_fallback = true, quiet = true }, function(err)
+          if err then
+            vim.notify("Format failed: " .. err, vim.log.levels.WARN, { title = "Conform" })
+          end
+        end)
       end,
       mode = { "n", "v" },
       desc = "Format buffer",
@@ -40,6 +44,10 @@ return {
     },
     formatters_by_ft = {
       lua = { "stylua" },
+      javascript = { "prettier" },
+      javascriptreact = { "prettier" },
+      typescript = { "prettier" },
+      typescriptreact = { "prettier" },
       go = function(bufnr)
         local bufname = vim.api.nvim_buf_get_name(bufnr)
         if bufname == "" then
