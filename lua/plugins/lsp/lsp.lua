@@ -145,6 +145,8 @@ return {
         "lua-language-server",
         "stylua",
         "terraform-ls",
+        "rust-analyzer",
+        "rustfmt",
       }
       local missing_tool_commands = {}
       for _, command_name in ipairs(required_tool_commands) do

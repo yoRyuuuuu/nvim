@@ -23,6 +23,9 @@ vim.keymap.set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search 
 -- LSP rename
 vim.keymap.set("n", "<leader>lr", vim.lsp.buf.rename, { desc = "LSP Rename" })
 
+-- LSP code action
+vim.keymap.set({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, { desc = "LSP Code Action" })
+
 -- Diagnostic: show full message in a focusable float (scrollable, no early close)
 vim.keymap.set("n", "gl", function()
   local bufnr = 0
