@@ -61,6 +61,17 @@ return {
             },
           },
         },
+        sources = {
+          explorer = {
+            win = {
+              list = {
+                keys = {
+                  ["E"] = { { "confirm", "close" } },
+                },
+              },
+            },
+          },
+        },
       },
       terminal = { enabled = true },
       rename = { enabled = true },
@@ -102,7 +113,7 @@ return {
       { "<leader>gt", function() Snacks.picker.git_status() end, desc = "Git Status", },
       { "<leader>gT", function() Snacks.picker.git_stash() end, desc = "Git Stash", },
       -- Terminal mappings
-      { "<leader>tf", function() Snacks.terminal(nil, { win = { position = "float" } }) end, desc = "Terminal (Float Toggle)", },
+      { "<leader>tf", function() Snacks.terminal(nil, { win = { position = "float", border = "rounded" } }) end, desc = "Terminal (Float Toggle)", },
       { "<leader>gg", function() Snacks.lazygit() end, desc = "LazyGit", },
       -- LSP picker mappings (Astrojvim-style)
       { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto Definition", },
