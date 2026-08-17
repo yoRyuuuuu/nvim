@@ -14,6 +14,10 @@ return {
       mux = { backend = "tmux", enabled = false },
       tools = {
         codex = { cmd = { "codex" } },
+        -- Hide TMUX so Claude Code emits a plain OSC 52 instead of the
+        -- tmux DCS passthrough form, which nvim's terminal cannot parse
+        -- and leaks into the buffer as literal `52;c;<base64>` text.
+        claude = { env = { TMUX = false } },
       },
     },
   },
