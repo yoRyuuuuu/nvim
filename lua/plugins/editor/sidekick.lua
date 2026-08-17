@@ -4,14 +4,6 @@ return {
     nes = { enabled = false },
     cli = {
       win = {
-        layout = "float",
-        float = {
-          width = 0.35,
-          height = 1,
-          row = 0,
-          col = 1, -- flush to the right edge
-          border = "single",
-        },
         keys = {
           -- prefer emacs-style keys
           buffers = false, -- <c-b>
