@@ -31,6 +31,9 @@ vim.keymap.set("n", "<leader>k", "<Cmd>execute 'move .-' . (v:count1 + 1)<CR>=="
 vim.keymap.set("x", "<leader>j", ":<C-u>execute \"'<,'>move '>+\" . v:count1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("x", "<leader>k", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<CR>gv=gv", { desc = "Move selection up" })
 
+-- Leave insert with a single chord (no jk sequence / no timeout / no misfire)
+vim.keymap.set("i", "<C-c>", "<Esc>", { desc = "Leave insert mode" })
+
 -- Clear search highlight
 vim.keymap.set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
