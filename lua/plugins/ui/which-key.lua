@@ -13,6 +13,7 @@ return {
       },
       spec = {
         { "<leader>a", group = "AI" },
+        { "<leader>d", group = "Diff" },
         { "<leader>f", group = "Find" },
         { "<leader>g", group = "Git" },
         { "<leader>l", group = "LSP" },
