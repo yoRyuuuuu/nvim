@@ -6,7 +6,32 @@ return {
     lazy = false,
     config = function()
       local treesitter = require("nvim-treesitter")
-      treesitter.install({ "terraform", "hcl" })
+
+      -- Parsers to have available up front. Textobject motions (]f, cif, ...)
+      -- silently no-op without a parser, so cover the languages used here.
+      treesitter.install({
+        "bash",
+        "diff",
+        "go",
+        "gomod",
+        "gosum",
+        "gowork",
+        "hcl",
+        "javascript",
+        "jsdoc",
+        "json",
+        "luadoc",
+        "markdown",
+        "markdown_inline",
+        "python",
+        "regex",
+        "rust",
+        "terraform",
+        "toml",
+        "tsx",
+        "typescript",
+        "yaml",
+      })
 
       -- In the rewritten main branch, highlighting is provided by Neovim and must be enabled explicitly.
       vim.api.nvim_create_autocmd("FileType", {
@@ -21,7 +46,19 @@ return {
             return
           end
 
-          pcall(vim.treesitter.start, args.buf, lang)
+          -- Auto-install a missing parser, then start once it is ready.
+          if vim.tbl_contains(require("nvim-treesitter.config").get_installed(), lang) then
+            pcall(vim.treesitter.start, args.buf, lang)
+          else
+            local ok, task = pcall(treesitter.install, { lang })
+            if ok and task then
+              task:await(vim.schedule_wrap(function()
+                if vim.api.nvim_buf_is_valid(args.buf) then
+                  pcall(vim.treesitter.start, args.buf, lang)
+                end
+              end))
+            end
+          end
         end,
       })
     end,
