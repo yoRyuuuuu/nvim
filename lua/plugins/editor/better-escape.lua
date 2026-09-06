@@ -5,9 +5,9 @@ return {
     timeout = 100,
     default_mappings = false,
     mappings = {
-      i = { j = { ["["] = "<ESC>" } },
+      i = { j = { k = "<ESC>" } },
       t = {
-        j = { ["["] = "<C-\\><C-n>" },
+        j = { k = "<C-\\><C-n>" },
       },
     },
   },

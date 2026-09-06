@@ -17,6 +17,14 @@ vim.keymap.set("v", "<leader>y", function()
   vim.notify("Copied to clipboard: " .. context_string, vim.log.levels.INFO)
 end, { desc = "Copy context string for AI" })
 
+-- Write file
+vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Write file" })
+
+-- 40% keyboard: line-edge motions on the base layer
+-- (^ and $ otherwise need a symbol-layer hold)
+vim.keymap.set({ "n", "x", "o" }, "H", "^", { desc = "First non-blank char" })
+vim.keymap.set({ "n", "x", "o" }, "L", "$", { desc = "End of line" })
+
 -- Clear search highlight
 vim.keymap.set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
