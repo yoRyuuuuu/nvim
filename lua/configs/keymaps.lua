@@ -25,6 +25,12 @@ vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Write file" })
 vim.keymap.set({ "n", "x", "o" }, "H", "^", { desc = "First non-blank char" })
 vim.keymap.set({ "n", "x", "o" }, "L", "$", { desc = "End of line" })
 
+-- 40% keyboard: move lines/selections via <leader> (no Alt, no counts, no `:m` typing)
+vim.keymap.set("n", "<leader>j", "<Cmd>execute 'move .+' . v:count1<CR>==", { desc = "Move line down" })
+vim.keymap.set("n", "<leader>k", "<Cmd>execute 'move .-' . (v:count1 + 1)<CR>==", { desc = "Move line up" })
+vim.keymap.set("x", "<leader>j", ":<C-u>execute \"'<,'>move '>+\" . v:count1<CR>gv=gv", { desc = "Move selection down" })
+vim.keymap.set("x", "<leader>k", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<CR>gv=gv", { desc = "Move selection up" })
+
 -- Clear search highlight
 vim.keymap.set("n", "<Esc><Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 

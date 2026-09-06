@@ -39,5 +39,57 @@ return {
     event = { "BufReadPre" },
     branch = "main",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function()
+      require("nvim-treesitter-textobjects").setup({
+        select = { lookahead = true },
+        move = { set_jumps = true },
+      })
+
+      local sel = require("nvim-treesitter-textobjects.select").select_textobject
+      local mv = require("nvim-treesitter-textobjects.move")
+      local swap = require("nvim-treesitter-textobjects.swap")
+      local map = vim.keymap.set
+
+      -- Syntax-aware select: f = function, c = class.
+      -- Brackets / quotes / arguments are handled by targets.vim.
+      for lhs, obj in pairs({
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+      }) do
+        map({ "x", "o" }, lhs, function()
+          sel(obj, "textobjects")
+        end, { desc = "TS " .. obj })
+      end
+
+      -- Move to next/prev function, class, parameter without typing counts or symbols.
+      map({ "n", "x", "o" }, "]f", function()
+        mv.goto_next_start("@function.outer", "textobjects")
+      end, { desc = "Next function start" })
+      map({ "n", "x", "o" }, "[f", function()
+        mv.goto_previous_start("@function.outer", "textobjects")
+      end, { desc = "Prev function start" })
+      map({ "n", "x", "o" }, "]c", function()
+        mv.goto_next_start("@class.outer", "textobjects")
+      end, { desc = "Next class start" })
+      map({ "n", "x", "o" }, "[c", function()
+        mv.goto_previous_start("@class.outer", "textobjects")
+      end, { desc = "Prev class start" })
+      map({ "n", "x", "o" }, "]a", function()
+        mv.goto_next_start("@parameter.inner", "textobjects")
+      end, { desc = "Next parameter" })
+      map({ "n", "x", "o" }, "[a", function()
+        mv.goto_previous_start("@parameter.inner", "textobjects")
+      end, { desc = "Prev parameter" })
+
+      -- Reorder arguments without counting.
+      map("n", "<leader>na", function()
+        swap.swap_next("@parameter.inner")
+      end, { desc = "Swap parameter with next" })
+      map("n", "<leader>pa", function()
+        swap.swap_previous("@parameter.inner")
+      end, { desc = "Swap parameter with prev" })
+    end,
   },
 }
