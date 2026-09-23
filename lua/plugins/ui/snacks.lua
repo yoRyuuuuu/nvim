@@ -23,6 +23,25 @@ return {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
+    init = function()
+      vim.api.nvim_create_autocmd("ModeChanged", {
+        group = vim.api.nvim_create_augroup("snacks_picker_input_cursor", { clear = true }),
+        pattern = "*:i*",
+        callback = function(ev)
+          if vim.bo[ev.buf].filetype ~= "snacks_picker_input" then
+            return
+          end
+          local win = vim.api.nvim_get_current_win()
+          if vim.api.nvim_win_get_buf(win) ~= ev.buf then
+            return
+          end
+          local line = vim.api.nvim_buf_get_lines(ev.buf, 0, 1, false)[1] or ""
+          if vim.api.nvim_win_get_cursor(win)[2] < #line then
+            vim.api.nvim_win_set_cursor(win, { 1, #line })
+          end
+        end,
+      })
+    end,
     ---@type snacks.Config
     opts = {
       dashboard = { enabled = true },

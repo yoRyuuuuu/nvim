@@ -22,6 +22,7 @@ return {
         gopls = { "go.work", "go.mod" },
         golangci_lint_ls = { "go.work", "go.mod" },
         terraformls = { ".terraform", ".git" },
+        tsp_server = { "tspconfig.yaml", ".git" },
         ts_ls = { "tsconfig.json", "jsconfig.json", "package.json" },
         lua_ls = { ".luarc.json", ".luarc.jsonc", "stylua.toml", ".git" },
       }
@@ -184,6 +185,7 @@ return {
         "lua-language-server",
         "stylua",
         "terraform-ls",
+        "tsp-server",
         "rust-analyzer",
         "rustfmt",
       }
@@ -238,6 +240,9 @@ return {
           on_attach = function(client)
             disable_formatting_capabilities(client)
           end,
+        },
+        tsp_server = {
+          root_dir = build_root_dir(server_root_markers.tsp_server),
         },
         lua_ls = {
           root_dir = build_root_dir(server_root_markers.lua_ls),
