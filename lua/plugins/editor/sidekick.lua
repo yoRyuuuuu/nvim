@@ -4,6 +4,7 @@ return {
     nes = { enabled = false },
     cli = {
       win = {
+        split = { width = 0.4 },
         keys = {
           -- prefer emacs-style keys
           buffers = false, -- <c-b>

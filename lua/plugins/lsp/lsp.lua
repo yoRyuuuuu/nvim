@@ -136,11 +136,50 @@ return {
         client.server_capabilities.documentRangeFormattingProvider = false
       end
 
+      -- Insert an `if err != nil { return <zero-values...> }` block for the
+      -- error on the cursor line, with return values matching the enclosing
+      -- function's signature. Runs against a temp copy of the buffer so
+      -- unsaved edits are picked up too.
+      local function insert_error_handling()
+        if vim.fn.executable("iferr") == 0 then
+          vim.notify("iferr not found on PATH", vim.log.levels.ERROR, { title = "iferr" })
+          return
+        end
+
+        local bufnr = vim.api.nvim_get_current_buf()
+        local lnum = vim.api.nvim_win_get_cursor(0)[1]
+        local lines_before = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+        local tmpfile = vim.fn.tempname() .. ".go"
+        vim.fn.writefile(lines_before, tmpfile)
+
+        local result = vim.system({ "iferr", "-file", tmpfile, "-line", tostring(lnum) }, { text = true }):wait()
+        os.remove(tmpfile)
+
+        if result.code ~= 0 then
+          vim.notify(vim.trim(result.stderr or "iferr failed"), vim.log.levels.ERROR, { title = "iferr" })
+          return
+        end
+
+        local new_lines = vim.split(result.stdout, "\n", { trimempty = false })
+        if new_lines[#new_lines] == "" then
+          table.remove(new_lines)
+        end
+
+        vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, new_lines)
+
+        local inserted = #new_lines - #lines_before
+        local target_line = inserted > 0 and (lnum + 1) or lnum
+        target_line = math.min(math.max(target_line, 1), #new_lines)
+        vim.api.nvim_win_set_cursor(0, { target_line, 0 })
+      end
+
       local required_tool_commands = {
         "gopls",
         "golangci-lint",
         "golangci-lint-langserver",
         "goimports",
+        "iferr",
         "typescript-language-server",
         "lua-language-server",
         "stylua",
@@ -171,9 +210,14 @@ return {
       local lsp_servers = {
         gopls = {
           root_dir = build_root_dir(server_root_markers.gopls),
-          on_attach = function(client)
+          on_attach = function(client, bufnr)
             -- Prefer Tree-sitter highlights over gopls semantic tokens.
             client.server_capabilities.semanticTokensProvider = nil
+
+            vim.keymap.set("n", "<leader>ie", insert_error_handling, {
+              buffer = bufnr,
+              desc = "Insert error handling (iferr)",
+            })
           end,
         },
         golangci_lint_ls = {
