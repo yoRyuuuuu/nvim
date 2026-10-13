@@ -23,11 +23,17 @@ return {
     sources = {
       default = { "lsp", "path", "snippets", "buffer" },
       per_filetype = {
+        lua = { inherit_defaults = true, "lazydev" },
         terraform = { "lsp", "path", "buffer" },
         ["terraform-vars"] = { "lsp", "path", "buffer" },
         hcl = { "lsp", "path", "buffer" },
       },
       providers = {
+        lazydev = {
+          name = "LazyDev",
+          module = "lazydev.integrations.blink",
+          score_offset = 100,
+        },
         lsp = {
           transform_items = function(ctx, items)
             if not snippet_kind then
