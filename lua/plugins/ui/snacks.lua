@@ -18,12 +18,124 @@ local function smart_files()
   })
 end
 
+local function git_worktrees()
+  local root = require("snacks.git").get_root(vim.uv.cwd())
+  if root == nil then
+    vim.notify("Not in a git repository", vim.log.levels.WARN)
+    return
+  end
+
+  local out = vim.system({ "git", "worktree", "list", "--porcelain" }, { cwd = root, text = true }):wait()
+  if out.code ~= 0 then
+    vim.notify("git worktree list failed: " .. (out.stderr or ""), vim.log.levels.ERROR)
+    return
+  end
+
+  local items = {}
+  for block in (out.stdout .. "\n"):gmatch("(.-)\n\n") do
+    local item = {}
+    for line in block:gmatch("[^\n]+") do
+      local key, value = line:match("^(%S+)%s?(.*)$")
+      if key == "worktree" then
+        item.cwd = value
+      elseif key == "HEAD" then
+        item.commit = value
+      elseif key == "branch" then
+        item.branch = value:gsub("^refs/heads/", "")
+      elseif key == "detached" then
+        item.detached = true
+      elseif key == "bare" or key == "prunable" then
+        item.skip = true
+      end
+    end
+    if item.cwd and not item.skip then
+      item.current = vim.fs.normalize(item.cwd) == vim.fs.normalize(root)
+      item.label = item.branch or (item.commit or ""):sub(1, 7)
+      item.text = item.label .. " " .. item.cwd
+      items[#items + 1] = item
+    end
+  end
+
+  Snacks.picker.pick({
+    title = "Git Worktrees",
+    items = items,
+    preview = "git_log",
+    -- fancy では git_log プレビューの行ハイライトが無効になる
+    previewers = { diff = { style = "syntax" } },
+    format = function(item)
+      local a = Snacks.picker.util.align
+      return {
+        item.current and { a("", 2), "SnacksPickerGitBranchCurrent" } or { a("", 2) },
+        {
+          a(item.label, 30, { truncate = true }),
+          item.detached and "SnacksPickerGitDetached" or "SnacksPickerGitBranch",
+        },
+        { " " },
+        { vim.fn.fnamemodify(item.cwd, ":~"), "SnacksPickerDir" },
+      }
+    end,
+    on_show = function(picker)
+      for i, item in ipairs(picker:items()) do
+        if item.current then
+          picker.list:view(i)
+          Snacks.picker.actions.list_scroll_center(picker)
+          break
+        end
+      end
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if item then
+        vim.cmd.cd(item.cwd)
+        vim.notify("cd " .. vim.fn.fnamemodify(item.cwd, ":~"), vim.log.levels.INFO)
+      end
+    end,
+  })
+end
+
+local function dashboard_worktree()
+  local root = require("snacks.git").get_root(vim.uv.cwd())
+  if root == nil then
+    return nil
+  end
+
+  local out = vim
+    .system(
+      { "git", "rev-parse", "--path-format=absolute", "--abbrev-ref", "HEAD", "--git-dir", "--git-common-dir" },
+      { cwd = root, text = true }
+    )
+    :wait()
+  if out.code ~= 0 then
+    return nil
+  end
+
+  local head, git_dir, common_dir = unpack(vim.split(vim.trim(out.stdout), "\n"))
+  if head == "HEAD" then
+    head =
+      vim.trim(vim.system({ "git", "rev-parse", "--short", "HEAD" }, { cwd = root, text = true }):wait().stdout or "")
+  end
+  local kind = git_dir == common_dir and "main" or "worktree"
+  return {
+    {
+      text = { { head, hl = "SnacksDashboardKey" }, { "  (" .. kind .. ")", hl = "SnacksDashboardDesc" } },
+      align = "center",
+    },
+    { text = { { vim.fn.fnamemodify(root, ":~"), hl = "SnacksDashboardFile" } }, align = "center", padding = 2 },
+  }
+end
+
 return {
   {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
     init = function()
+      vim.api.nvim_create_autocmd("DirChanged", {
+        group = vim.api.nvim_create_augroup("snacks_dashboard_worktree", { clear = true }),
+        callback = function()
+          Snacks.dashboard.update()
+        end,
+      })
       vim.api.nvim_create_autocmd("ModeChanged", {
         group = vim.api.nvim_create_augroup("snacks_picker_input_cursor", { clear = true }),
         pattern = "*:i*",
@@ -44,7 +156,15 @@ return {
     end,
     ---@type snacks.Config
     opts = {
-      dashboard = { enabled = true },
+      dashboard = {
+        enabled = true,
+        sections = {
+          { section = "header" },
+          dashboard_worktree,
+          { section = "keys", gap = 1, padding = 1 },
+          { section = "startup" },
+        },
+      },
       explorer = { enabled = true },
       git = { enabled = true },
       gitbrowse = { enabled = true },
@@ -131,6 +251,7 @@ return {
       { "<leader>go", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" }, },
       { "<leader>gt", function() Snacks.picker.git_status() end, desc = "Git Status", },
       { "<leader>gT", function() Snacks.picker.git_stash() end, desc = "Git Stash", },
+      { "<leader>gw", git_worktrees, desc = "Git Worktrees", },
       -- Terminal mappings
       { "<leader>tf", function() Snacks.terminal(nil, { win = { position = "float", border = "rounded" } }) end, desc = "Terminal (Float Toggle)", },
       { "<leader>gg", function() Snacks.lazygit() end, desc = "LazyGit", },
