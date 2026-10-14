@@ -130,21 +130,10 @@ return {
     priority = 1000,
     lazy = false,
     init = function()
-      local dashboard_group = vim.api.nvim_create_augroup("snacks_dashboard_worktree", { clear = true })
       vim.api.nvim_create_autocmd("DirChanged", {
-        group = dashboard_group,
+        group = vim.api.nvim_create_augroup("snacks_dashboard_worktree", { clear = true }),
         callback = function()
           Snacks.dashboard.update()
-        end,
-      })
-      vim.api.nvim_create_autocmd("User", {
-        group = dashboard_group,
-        pattern = "SnacksDashboardUpdatePost",
-        callback = function()
-          -- 再描画後のカーソルが Quit に寄り、Enter で終了してしまう
-          if vim.bo.filetype == "snacks_dashboard" then
-            vim.api.nvim_win_set_cursor(0, { 1, 0 })
-          end
         end,
       })
       vim.api.nvim_create_autocmd("ModeChanged", {
@@ -169,6 +158,18 @@ return {
     opts = {
       dashboard = {
         enabled = true,
+        preset = {
+          -- stylua: ignore
+          keys = {
+            { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+            { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
+            { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+            { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+            { icon = " ", key = "c", desc = "Config", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
+            { icon = " ", key = "s", desc = "Restore Session", section = "session" },
+            { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
+          },
+        },
         sections = {
           { section = "header" },
           dashboard_worktree,
