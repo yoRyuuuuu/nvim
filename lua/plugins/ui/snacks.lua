@@ -221,6 +221,10 @@ return {
               },
             },
           },
+          git_branches = {
+            -- fancy では git_log プレビューの行ハイライトが無効になる
+            previewers = { diff = { style = "syntax" } },
+          },
         },
       },
       terminal = { enabled = true },
