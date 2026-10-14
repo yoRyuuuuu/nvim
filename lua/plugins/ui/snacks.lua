@@ -93,10 +93,18 @@ local function git_worktrees()
   })
 end
 
+local function dashboard_lines(title, path)
+  return {
+    { text = title, align = "center" },
+    { text = { { vim.fn.fnamemodify(path, ":~"), hl = "SnacksDashboardFile" } }, align = "center", padding = 2 },
+  }
+end
+
 local function dashboard_worktree()
-  local root = require("snacks.git").get_root(vim.uv.cwd())
+  local cwd = vim.uv.cwd()
+  local root = require("snacks.git").get_root(cwd)
   if root == nil then
-    return nil
+    return dashboard_lines({ { "Not a git repository", hl = "SnacksDashboardDesc" } }, cwd)
   end
 
   local out = vim
@@ -114,14 +122,15 @@ local function dashboard_worktree()
     head =
       vim.trim(vim.system({ "git", "rev-parse", "--short", "HEAD" }, { cwd = root, text = true }):wait().stdout or "")
   end
-  local kind = git_dir == common_dir and "main" or "worktree"
-  return {
-    {
-      text = { { head, hl = "SnacksDashboardKey" }, { "  (" .. kind .. ")", hl = "SnacksDashboardDesc" } },
-      align = "center",
-    },
-    { text = { { vim.fn.fnamemodify(root, ":~"), hl = "SnacksDashboardFile" } }, align = "center", padding = 2 },
-  }
+  local kind = "worktree"
+  if git_dir == common_dir then
+    local linked = vim.uv.fs_scandir(common_dir .. "/worktrees")
+    kind = linked and vim.uv.fs_scandir_next(linked) and "main" or "no worktrees"
+  end
+  return dashboard_lines(
+    { { head, hl = "SnacksDashboardKey" }, { "  (" .. kind .. ")", hl = "SnacksDashboardDesc" } },
+    root
+  )
 end
 
 return {
