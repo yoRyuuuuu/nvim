@@ -130,10 +130,21 @@ return {
     priority = 1000,
     lazy = false,
     init = function()
+      local dashboard_group = vim.api.nvim_create_augroup("snacks_dashboard_worktree", { clear = true })
       vim.api.nvim_create_autocmd("DirChanged", {
-        group = vim.api.nvim_create_augroup("snacks_dashboard_worktree", { clear = true }),
+        group = dashboard_group,
         callback = function()
           Snacks.dashboard.update()
+        end,
+      })
+      vim.api.nvim_create_autocmd("User", {
+        group = dashboard_group,
+        pattern = "SnacksDashboardUpdatePost",
+        callback = function()
+          -- 再描画後のカーソルが Quit に寄り、Enter で終了してしまう
+          if vim.bo.filetype == "snacks_dashboard" then
+            vim.api.nvim_win_set_cursor(0, { 1, 0 })
+          end
         end,
       })
       vim.api.nvim_create_autocmd("ModeChanged", {
