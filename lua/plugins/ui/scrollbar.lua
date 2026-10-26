@@ -1,18 +1,21 @@
 return {
   "petertriho/nvim-scrollbar",
+  -- v2 lands on main on 2026-11-16; drop this line after that.
+  branch = "refactor/v2",
   event = { "BufReadPre", "BufNewFile" },
   dependencies = {
     "lewis6991/gitsigns.nvim",
   },
-  config = function(_, opts)
-    require("scrollbar").setup(opts)
-    require("scrollbar.handlers.diagnostic").setup()
-    require("scrollbar.handlers.gitsigns").setup()
-  end,
   opts = {
-    handle = {
-      highlight = "Visual",
-      blend = 0,
+    providers = {
+      diagnostic = true,
+      gitsigns = true,
+    },
+    scrollbar = {
+      thumb = {
+        highlight = "Visual",
+        blend = 0,
+      },
     },
     marks = {
       Error = {
@@ -26,7 +29,7 @@ return {
         highlight = "DiagnosticWarn",
       },
       Info = {
-        text = { "" },
+        text = { "" },
         priority = 4,
         highlight = "DiagnosticInfo",
       },
