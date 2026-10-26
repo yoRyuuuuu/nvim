@@ -13,6 +13,7 @@ return {
           vim.system({ "go", "install", "gotest.tools/gotestsum@latest" }):wait() -- Optional, but recommended
         end,
       },
+      "jfpedroza/neotest-elixir",
     },
     config = function()
       local config = {
@@ -24,6 +25,7 @@ return {
         adapters = {
           require("neotest-golang")(config),
           require("rustaceanvim.neotest"),
+          require("neotest-elixir"),
         },
       })
 

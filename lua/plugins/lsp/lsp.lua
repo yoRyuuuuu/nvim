@@ -9,8 +9,10 @@ return {
           [".git"] = true,
           [".next"] = true,
           [".terraform"] = true,
+          ["_build"] = true,
           ["build"] = true,
           ["coverage"] = true,
+          ["deps"] = true,
           ["dist"] = true,
           ["node_modules"] = true,
           ["target"] = true,
@@ -132,6 +134,25 @@ return {
         end
       end
 
+      -- Umbrella apps nest mix.exs files; treat the second one found upward
+      -- (if any) as the umbrella root, matching lspconfig's expert default.
+      local function expert_root_dir(buf, on_dir)
+        local file_path = resolve_buf_path(buf)
+        if not is_lsp_target(buf, file_path) then
+          return
+        end
+
+        local matches = vim.fs.find({ "mix.exs" }, {
+          path = vim.fs.dirname(file_path),
+          upward = true,
+          limit = 2,
+        })
+        local mix_file = matches[2] or matches[1]
+        if mix_file then
+          on_dir(vim.fs.dirname(mix_file))
+        end
+      end
+
       local function disable_formatting_capabilities(client)
         client.server_capabilities.documentFormattingProvider = false
         client.server_capabilities.documentRangeFormattingProvider = false
@@ -188,6 +209,8 @@ return {
         "tsp-server",
         "rust-analyzer",
         "rustfmt",
+        "expert",
+        "mix",
       }
       local missing_tool_commands = {}
       for _, command_name in ipairs(required_tool_commands) do
@@ -210,6 +233,13 @@ return {
       end
 
       local lsp_servers = {
+        expert = {
+          root_dir = expert_root_dir,
+          on_attach = function(client)
+            -- Formatting goes through conform's `mix format`.
+            disable_formatting_capabilities(client)
+          end,
+        },
         gopls = {
           root_dir = build_root_dir(server_root_markers.gopls),
           on_attach = function(client, bufnr)

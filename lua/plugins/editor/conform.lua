@@ -45,6 +45,9 @@ return {
     formatters_by_ft = {
       lua = { "stylua" },
       rust = { "rustfmt" },
+      elixir = { "mix" },
+      eelixir = { "mix" },
+      heex = { "mix" },
       javascript = { "prettier" },
       javascriptreact = { "prettier" },
       typescript = { "prettier" },

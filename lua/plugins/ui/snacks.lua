@@ -145,23 +145,6 @@ return {
           Snacks.dashboard.update()
         end,
       })
-      vim.api.nvim_create_autocmd("ModeChanged", {
-        group = vim.api.nvim_create_augroup("snacks_picker_input_cursor", { clear = true }),
-        pattern = "*:i*",
-        callback = function(ev)
-          if vim.bo[ev.buf].filetype ~= "snacks_picker_input" then
-            return
-          end
-          local win = vim.api.nvim_get_current_win()
-          if vim.api.nvim_win_get_buf(win) ~= ev.buf then
-            return
-          end
-          local line = vim.api.nvim_buf_get_lines(ev.buf, 0, 1, false)[1] or ""
-          if vim.api.nvim_win_get_cursor(win)[2] < #line then
-            vim.api.nvim_win_set_cursor(win, { 1, #line })
-          end
-        end,
-      })
     end,
     ---@type snacks.Config
     opts = {
@@ -218,6 +201,13 @@ return {
           input = {
             keys = {
               ["<a-a>"] = { "sidekick_send", mode = { "n", "i" } },
+            },
+            -- Works around a snacks.nvim/Neovim redraw race with the
+            -- right-aligned result-count extmark that transposes typed
+            -- characters at EOL when virtualedit=none (upstream:
+            -- https://github.com/folke/snacks.nvim/issues/2810).
+            wo = {
+              virtualedit = "all",
             },
           },
         },
