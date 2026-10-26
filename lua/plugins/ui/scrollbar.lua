@@ -29,7 +29,7 @@ return {
         highlight = "DiagnosticWarn",
       },
       Info = {
-        text = { "" },
+        text = { "" },
         priority = 4,
         highlight = "DiagnosticInfo",
       },
