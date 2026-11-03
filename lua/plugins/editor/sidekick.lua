@@ -1,5 +1,7 @@
 return {
   "folke/sidekick.nvim",
+  -- Replaced by claudecode.nvim (Claude Code runs in a Herdr App pane)
+  enabled = false,
   opts = {
     nes = { enabled = false },
     cli = {
