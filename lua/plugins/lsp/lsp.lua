@@ -2,6 +2,7 @@ return {
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
+    dependencies = { "b0o/SchemaStore.nvim" },
     config = function()
       local lsp_policy = {
         max_filesize_bytes = 1024 * 1024,
@@ -25,7 +26,7 @@ return {
         golangci_lint_ls = { "go.work", "go.mod" },
         terraformls = { ".terraform", ".git" },
         tsp_server = { "tspconfig.yaml", ".git" },
-        ts_ls = { "tsconfig.json", "jsconfig.json", "package.json" },
+        jsonls = { ".git" },
         lua_ls = { ".luarc.json", ".luarc.jsonc", "stylua.toml", ".git" },
       }
 
@@ -153,6 +154,14 @@ return {
         end
       end
 
+      local function with_lsp_target(root_dir)
+        return function(buf, on_dir)
+          if is_lsp_target(buf) then
+            root_dir(buf, on_dir)
+          end
+        end
+      end
+
       local function disable_formatting_capabilities(client)
         client.server_capabilities.documentFormattingProvider = false
         client.server_capabilities.documentRangeFormattingProvider = false
@@ -202,7 +211,10 @@ return {
         "golangci-lint-langserver",
         "goimports",
         "iferr",
-        "typescript-language-server",
+        "tsc",
+        "vscode-eslint-language-server",
+        "vscode-json-language-server",
+        "tailwindcss-language-server",
         "lua-language-server",
         "stylua",
         "terraform-ls",
@@ -231,6 +243,8 @@ return {
       if ok and type(blink.get_lsp_capabilities) == "function" then
         capabilities = blink.get_lsp_capabilities(capabilities)
       end
+
+      local tsc_defaults = vim.lsp.config.tsc
 
       local lsp_servers = {
         expert = {
@@ -265,11 +279,29 @@ return {
             client.server_capabilities.semanticTokensProvider = nil
           end,
         },
-        ts_ls = {
-          root_dir = build_root_dir(server_root_markers.ts_ls),
+        tsc = {
+          -- Take cmd from the same load of lsp/tsc.lua as root_dir.
+          -- A separately loaded cmd misses root_dir's binary cache and always runs tsc from PATH.
+          cmd = tsc_defaults.cmd,
+          root_dir = with_lsp_target(tsc_defaults.root_dir),
           on_attach = function(client)
             disable_formatting_capabilities(client)
           end,
+        },
+        eslint = {
+          root_dir = with_lsp_target(vim.lsp.config.eslint.root_dir),
+        },
+        jsonls = {
+          root_dir = build_root_dir(server_root_markers.jsonls),
+          settings = {
+            json = {
+              schemas = require("schemastore").json.schemas(),
+              validate = { enable = true },
+            },
+          },
+        },
+        tailwindcss = {
+          root_dir = with_lsp_target(vim.lsp.config.tailwindcss.root_dir),
         },
         tsp_server = {
           root_dir = build_root_dir(server_root_markers.tsp_server),

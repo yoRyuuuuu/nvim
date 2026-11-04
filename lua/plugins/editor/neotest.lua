@@ -14,6 +14,8 @@ return {
         end,
       },
       "jfpedroza/neotest-elixir",
+      "marilari88/neotest-vitest",
+      "nvim-neotest/neotest-jest",
     },
     config = function()
       local config = {
@@ -26,6 +28,8 @@ return {
           require("neotest-golang")(config),
           require("rustaceanvim.neotest"),
           require("neotest-elixir"),
+          require("neotest-vitest"),
+          require("neotest-jest"),
         },
       })
 
